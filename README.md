@@ -15,7 +15,7 @@ TaskFlow is a mini Project & Task Management Platform developed during the COMPU
 
 - Backend: Node.js + Express.js
 - Authentication: JWT
-- Database: MySQL or MongoDB
+- Database: MySQL 8.0
 - Admin CMS: React.js
 - Public Frontend: Next.js
 - API Testing: Postman
