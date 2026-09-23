@@ -1,6 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 
+const projectRoutes = require("./routes/projectRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+
 const app = express();
 
 app.use(cors());
@@ -18,5 +21,8 @@ app.get("/api/health", (req, res) => {
     message: "TaskFlow API is healthy",
   });
 });
+
+app.use("/api/projects", projectRoutes);
+app.use("/api/tasks", taskRoutes);
 
 module.exports = app;
