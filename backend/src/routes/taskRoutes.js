@@ -8,12 +8,17 @@ const {
   deleteTask,
 } = require("../controllers/taskController");
 
+const {
+  authenticateToken,
+} = require("../middleware/authMiddleware");
+
 const router = express.Router();
 
 router.get("/", getAllTasks);
 router.get("/:id", getTaskById);
-router.post("/", createTask);
-router.put("/:id", updateTask);
-router.delete("/:id", deleteTask);
+
+router.post("/", authenticateToken, createTask);
+router.put("/:id", authenticateToken, updateTask);
+router.delete("/:id", authenticateToken, deleteTask);
 
 module.exports = router;
