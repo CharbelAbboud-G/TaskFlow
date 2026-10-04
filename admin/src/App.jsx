@@ -1,20 +1,26 @@
-import UserCard from "./components/UserCard";
-import TaskCounter from "./components/TaskCounter";
-import EffectDemo from "./components/EffectDemo";
+import { Routes, Route } from "react-router-dom";
+
+import AdminLayout from "./layouts/AdminLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+import Dashboard from "./pages/Dashboard";
+import Projects from "./pages/Projects";
+import Tasks from "./pages/Tasks";
+import Login from "./pages/Login";
 
 function App() {
   return (
-    <main>
-      <h1>TaskFlow Admin CMS</h1>
-      <p>Week 2 - React Fundamentals</p>
+    <Routes>
+      <Route path="/login" element={<Login />} />
 
-      <UserCard name="Charbel" role="Administrator" />
-      <UserCard name="Test User" role="User" />
-
-      <TaskCounter />
-
-      <EffectDemo />
-    </main>
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AdminLayout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/tasks" element={<Tasks />} />
+        </Route>
+      </Route>
+    </Routes>
   );
 }
 
