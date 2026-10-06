@@ -1,6 +1,13 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 function Sidebar() {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   return (
     <aside className="sidebar">
       <h2>TaskFlow</h2>
@@ -27,6 +34,10 @@ function Sidebar() {
         >
           Tasks
         </NavLink>
+
+        <button onClick={handleLogout}>
+          Logout
+        </button>
       </nav>
     </aside>
   );
