@@ -10,18 +10,30 @@ function Projects() {
 
   const [userId, setUserId] = useState(null);
   const [editingProjectId, setEditingProjectId] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const loadProjects = async () => {
+    setLoading(true);
+    setError("");
+
     try {
       const response = await authFetch("/projects");
       const result = await response.json();
 
-      if (response.ok) {
-        setProjects(result.data);
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to load projects");
       }
+
+      setProjects(result.data);
     } catch (error) {
-      console.error("Failed to load projects:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -30,11 +42,13 @@ function Projects() {
       const response = await authFetch("/auth/me");
       const result = await response.json();
 
-      if (response.ok) {
-        setUserId(result.user.id);
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to load current user");
       }
+
+      setUserId(result.user.id);
     } catch (error) {
-      console.error("Failed to load user:", error);
+      setError(error.message);
     }
   };
 
@@ -52,7 +66,23 @@ function Projects() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     setError("");
+    setSuccess("");
+
+    const cleanTitle = title.trim();
+
+    if (cleanTitle.length < 3) {
+      setError("Project title must be at least 3 characters.");
+      return;
+    }
+
+    if (!editingProjectId && !userId) {
+      setError("User information is still loading. Please try again.");
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       let response;
@@ -61,8 +91,8 @@ function Projects() {
         response = await authFetch(`/projects/${editingProjectId}`, {
           method: "PUT",
           body: JSON.stringify({
-            title,
-            description,
+            title: cleanTitle,
+            description: description.trim(),
             status,
           }),
         });
@@ -70,8 +100,8 @@ function Projects() {
         response = await authFetch("/projects", {
           method: "POST",
           body: JSON.stringify({
-            title,
-            description,
+            title: cleanTitle,
+            description: description.trim(),
             status,
             user_id: userId,
           }),
@@ -89,14 +119,25 @@ function Projects() {
         );
       }
 
+      setSuccess(
+        editingProjectId
+          ? "Project updated successfully."
+          : "Project created successfully."
+      );
+
       resetForm();
       await loadProjects();
     } catch (error) {
       setError(error.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleEditProject = (project) => {
+    setError("");
+    setSuccess("");
+
     setEditingProjectId(project.id);
     setTitle(project.title);
     setDescription(project.description || "");
@@ -112,6 +153,9 @@ function Projects() {
       return;
     }
 
+    setError("");
+    setSuccess("");
+
     try {
       const response = await authFetch(`/projects/${id}`, {
         method: "DELETE",
@@ -126,6 +170,8 @@ function Projects() {
       if (editingProjectId === id) {
         resetForm();
       }
+
+      setSuccess("Project deleted successfully.");
 
       await loadProjects();
     } catch (error) {
@@ -177,8 +223,12 @@ function Projects() {
           </select>
         </div>
 
-        <button type="submit">
-          {editingProjectId ? "Update Project" : "Create Project"}
+        <button type="submit" disabled={submitting}>
+          {submitting
+            ? "Saving..."
+            : editingProjectId
+              ? "Update Project"
+              : "Create Project"}
         </button>
 
         {editingProjectId && (
@@ -186,46 +236,53 @@ function Projects() {
             Cancel
           </button>
         )}
-
-        {error && <p>{error}</p>}
       </form>
+
+      {error && <p className="error-message">{error}</p>}
+      {success && <p className="success-message">{success}</p>}
 
       <h2>Project List</h2>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Status</th>
-            <th>User ID</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {projects.map((project) => (
-            <tr key={project.id}>
-              <td>{project.id}</td>
-              <td>{project.title}</td>
-              <td>{project.status}</td>
-              <td>{project.user_id}</td>
-
-              <td>
-                <button onClick={() => handleEditProject(project)}>
-                  Edit
-                </button>
-
-                <button
-                  onClick={() => handleDeleteProject(project.id)}
-                >
-                  Delete
-                </button>
-              </td>
+      {loading ? (
+        <p>Loading projects...</p>
+      ) : projects.length === 0 ? (
+        <p>No projects found.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>User ID</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {projects.map((project) => (
+              <tr key={project.id}>
+                <td>{project.id}</td>
+                <td>{project.title}</td>
+                <td>{project.status}</td>
+                <td>{project.user_id}</td>
+
+                <td>
+                  <button onClick={() => handleEditProject(project)}>
+                    Edit
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteProject(project.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

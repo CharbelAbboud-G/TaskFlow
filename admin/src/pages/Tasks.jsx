@@ -13,18 +13,29 @@ function Tasks() {
 
   const [userId, setUserId] = useState(null);
   const [editingTaskId, setEditingTaskId] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const loadTasks = async () => {
+    setLoading(true);
+
     try {
       const response = await authFetch("/tasks");
       const result = await response.json();
 
-      if (response.ok) {
-        setTasks(result.data);
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to load tasks");
       }
+
+      setTasks(result.data);
     } catch (error) {
-      console.error("Failed to load tasks:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,15 +44,19 @@ function Tasks() {
       const response = await authFetch("/projects");
       const result = await response.json();
 
-      if (response.ok) {
-        setProjects(result.data);
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to load projects");
+      }
 
-        if (result.data.length > 0 && !projectId) {
-          setProjectId(result.data[0].id);
-        }
+      setProjects(result.data);
+
+      if (result.data.length > 0) {
+        setProjectId((currentProjectId) =>
+          currentProjectId || result.data[0].id
+        );
       }
     } catch (error) {
-      console.error("Failed to load projects:", error);
+      setError(error.message);
     }
   };
 
@@ -50,11 +65,13 @@ function Tasks() {
       const response = await authFetch("/auth/me");
       const result = await response.json();
 
-      if (response.ok) {
-        setUserId(result.user.id);
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to load current user");
       }
+
+      setUserId(result.user.id);
     } catch (error) {
-      console.error("Failed to load user:", error);
+      setError(error.message);
     }
   };
 
@@ -78,34 +95,50 @@ function Tasks() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     setError("");
+    setSuccess("");
+
+    const cleanTitle = title.trim();
+
+    if (cleanTitle.length < 3) {
+      setError("Task title must be at least 3 characters.");
+      return;
+    }
+
+    if (!projectId) {
+      setError("Please select a project.");
+      return;
+    }
+
+    if (!editingTaskId && !userId) {
+      setError("User information is still loading. Please try again.");
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       let response;
 
+      const taskData = {
+        title: cleanTitle,
+        description: description.trim(),
+        status,
+        priority,
+        project_id: Number(projectId),
+        assigned_user_id: userId,
+      };
+
       if (editingTaskId) {
         response = await authFetch(`/tasks/${editingTaskId}`, {
           method: "PUT",
-          body: JSON.stringify({
-            title,
-            description,
-            status,
-            priority,
-            project_id: Number(projectId),
-            assigned_user_id: userId,
-          }),
+          body: JSON.stringify(taskData),
         });
       } else {
         response = await authFetch("/tasks", {
           method: "POST",
-          body: JSON.stringify({
-            title,
-            description,
-            status,
-            priority,
-            project_id: Number(projectId),
-            assigned_user_id: userId,
-          }),
+          body: JSON.stringify(taskData),
         });
       }
 
@@ -120,14 +153,25 @@ function Tasks() {
         );
       }
 
+      setSuccess(
+        editingTaskId
+          ? "Task updated successfully."
+          : "Task created successfully."
+      );
+
       resetForm();
       await loadTasks();
     } catch (error) {
       setError(error.message);
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleEditTask = (task) => {
+    setError("");
+    setSuccess("");
+
     setEditingTaskId(task.id);
     setTitle(task.title);
     setDescription(task.description || "");
@@ -145,6 +189,9 @@ function Tasks() {
       return;
     }
 
+    setError("");
+    setSuccess("");
+
     try {
       const response = await authFetch(`/tasks/${id}`, {
         method: "DELETE",
@@ -159,6 +206,8 @@ function Tasks() {
       if (editingTaskId === id) {
         resetForm();
       }
+
+      setSuccess("Task deleted successfully.");
 
       await loadTasks();
     } catch (error) {
@@ -236,8 +285,12 @@ function Tasks() {
           </select>
         </div>
 
-        <button type="submit">
-          {editingTaskId ? "Update Task" : "Create Task"}
+        <button type="submit" disabled={submitting}>
+          {submitting
+            ? "Saving..."
+            : editingTaskId
+              ? "Update Task"
+              : "Create Task"}
         </button>
 
         {editingTaskId && (
@@ -245,46 +298,53 @@ function Tasks() {
             Cancel
           </button>
         )}
-
-        {error && <p>{error}</p>}
       </form>
+
+      {error && <p className="error-message">{error}</p>}
+      {success && <p className="success-message">{success}</p>}
 
       <h2>Task List</h2>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Project ID</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {tasks.map((task) => (
-            <tr key={task.id}>
-              <td>{task.id}</td>
-              <td>{task.title}</td>
-              <td>{task.status}</td>
-              <td>{task.priority}</td>
-              <td>{task.project_id}</td>
-
-              <td>
-                <button onClick={() => handleEditTask(task)}>
-                  Edit
-                </button>
-
-                <button onClick={() => handleDeleteTask(task.id)}>
-                  Delete
-                </button>
-              </td>
+      {loading ? (
+        <p>Loading tasks...</p>
+      ) : tasks.length === 0 ? (
+        <p>No tasks found.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Project ID</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {tasks.map((task) => (
+              <tr key={task.id}>
+                <td>{task.id}</td>
+                <td>{task.title}</td>
+                <td>{task.status}</td>
+                <td>{task.priority}</td>
+                <td>{task.project_id}</td>
+
+                <td>
+                  <button onClick={() => handleEditTask(task)}>
+                    Edit
+                  </button>
+
+                  <button onClick={() => handleDeleteTask(task.id)}>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
