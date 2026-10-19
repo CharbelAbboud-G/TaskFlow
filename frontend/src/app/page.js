@@ -1,69 +1,93 @@
-import Image from "next/image";
+import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function Home() {
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.js</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+      <header className={styles.header}>
+        <div className={styles.navbar}>
+          <Link href="/" className={styles.logo}>
+            TaskFlow
+          </Link>
+
+          <nav className={styles.nav}>
+            <Link href="/">Home</Link>
+            <Link href="/dashboard">Dashboard</Link>
+          </nav>
         </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+      </header>
+
+      <main>
+        <section className={styles.hero}>
+          <div className={styles.heroContent}>
+            <span className={styles.badge}>Simple Project Management</span>
+
+            <h1>
+              Organize your projects.
+              <br />
+              Manage your tasks.
+            </h1>
+
+            <p>
+              TaskFlow gives you a simple way to view projects and tasks in one
+              place, helping you stay organized and focused.
+            </p>
+
+            <div className={styles.heroButtons}>
+              <Link href="/dashboard" className={styles.primaryButton}>
+                View Dashboard
+              </Link>
+
+              <a href="#features" className={styles.secondaryButton}>
+                Learn More
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section id="features" className={styles.features}>
+          <div className={styles.sectionHeading}>
+            <p className={styles.sectionLabel}>TASKFLOW</p>
+            <h2>Everything you need to stay organized</h2>
+            <p>
+              A clean public interface connected to the TaskFlow backend.
+            </p>
+          </div>
+
+          <div className={styles.featureGrid}>
+            <article className={styles.card}>
+              <div className={styles.cardNumber}>01</div>
+              <h3>Projects</h3>
+              <p>
+                View your available projects and quickly understand their
+                current status.
+              </p>
+            </article>
+
+            <article className={styles.card}>
+              <div className={styles.cardNumber}>02</div>
+              <h3>Tasks</h3>
+              <p>
+                Keep track of tasks, priorities, and progress from one simple
+                dashboard.
+              </p>
+            </article>
+
+            <article className={styles.card}>
+              <div className={styles.cardNumber}>03</div>
+              <h3>Simple & Responsive</h3>
+              <p>
+                Use TaskFlow comfortably across desktop, tablet, and mobile
+                screens.
+              </p>
+            </article>
+          </div>
+        </section>
       </main>
+
+      <footer className={styles.footer}>
+        <p>TaskFlow — Full-Stack Web Development Internship Project</p>
+      </footer>
     </div>
   );
 }
