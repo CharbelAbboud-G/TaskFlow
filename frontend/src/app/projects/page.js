@@ -1,4 +1,10 @@
+export const metadata = {
+  title: "Projects | TaskFlow",
+  description: "Browse TaskFlow projects and view project details.",
+};
+
 import { Suspense } from "react";
+import ProjectCard from "@/components/ProjectCard";
 
 async function getProjects() {
   const response = await fetch(
@@ -22,11 +28,7 @@ async function ProjectsList() {
   return (
     <div>
       {projects.map((project) => (
-        <article key={project.id}>
-          <h2>{project.title}</h2>
-          <p>{project.description}</p>
-          <p>Status: {project.status}</p>
-        </article>
+        <ProjectCard key={project.id} project={project} />
       ))}
     </div>
   );
