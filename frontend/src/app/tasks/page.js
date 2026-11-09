@@ -1,8 +1,9 @@
 import { Suspense } from "react";
+import { API_BASE_URL } from "@/lib/api";
 
 async function getTasks() {
   const response = await fetch(
-    "http://localhost:5000/api/tasks",
+    `${API_BASE_URL}/tasks`,
     {
       cache: "no-store",
     }
@@ -33,13 +34,17 @@ async function TasksList() {
       {tasks.map((task) => (
         <article key={task.id}>
           <h2>{task.title}</h2>
+
           <p>{task.description}</p>
+
           <p>
             <strong>Status:</strong> {task.status}
           </p>
+
           <p>
             <strong>Priority:</strong> {task.priority}
           </p>
+
           <p>
             <strong>Project ID:</strong> {task.project_id}
           </p>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
+import { API_BASE_URL } from "../services/api";
 
 function ProtectedRoute() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
@@ -15,7 +16,7 @@ function ProtectedRoute() {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/auth/me",
+          `${API_BASE_URL}/auth/me`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -31,6 +32,7 @@ function ProtectedRoute() {
 
         setIsAuthenticated(true);
       } catch {
+        localStorage.removeItem("token");
         setIsAuthenticated(false);
       }
     };

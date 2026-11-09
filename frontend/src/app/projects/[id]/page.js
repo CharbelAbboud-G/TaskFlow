@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { API_BASE_URL } from "@/lib/api";
 
 async function getProject(id) {
   const response = await fetch(
-    `http://localhost:5000/api/projects/${id}`,
+    `${API_BASE_URL}/projects/${id}`,
     {
       cache: "no-store",
     }
@@ -42,7 +43,6 @@ export async function generateMetadata({ params }) {
 
 async function ProjectDetails({ params }) {
   const { id } = await params;
-
   const project = await getProject(id);
 
   if (!project) {

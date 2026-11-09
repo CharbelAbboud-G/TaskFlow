@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { API_BASE_URL } from "@/lib/api";
 
 async function getProjects() {
   const response = await fetch(
-    "http://localhost:5000/api/projects",
+    `${API_BASE_URL}/projects`,
     {
       cache: "no-store",
     }
@@ -19,7 +20,7 @@ async function getProjects() {
 
 async function getTasks() {
   const response = await fetch(
-    "http://localhost:5000/api/tasks",
+    `${API_BASE_URL}/tasks`,
     {
       cache: "no-store",
     }

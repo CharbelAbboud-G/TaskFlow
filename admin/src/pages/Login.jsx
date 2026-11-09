@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../services/api";
 
 function Login() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ function Login() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/login",
+        `${API_BASE_URL}/auth/login`,
         {
           method: "POST",
           headers: {
@@ -50,6 +51,7 @@ function Login() {
     <div className="login-page">
       <div className="login-card">
         <h1>TaskFlow Admin</h1>
+
         <p>Sign in to manage projects and tasks.</p>
 
         <form onSubmit={handleSubmit}>
