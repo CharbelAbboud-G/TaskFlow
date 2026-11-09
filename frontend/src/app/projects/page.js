@@ -25,10 +25,22 @@ async function getProjects() {
 async function ProjectsList() {
   const projects = await getProjects();
 
+  if (projects.length === 0) {
+    return (
+      <article>
+        <h2>No projects found</h2>
+        <p>There are currently no projects available.</p>
+      </article>
+    );
+  }
+
   return (
     <div>
       {projects.map((project) => (
-        <ProjectCard key={project.id} project={project} />
+        <ProjectCard
+          key={project.id}
+          project={project}
+        />
       ))}
     </div>
   );

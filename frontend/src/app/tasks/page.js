@@ -19,15 +19,30 @@ async function getTasks() {
 async function TasksList() {
   const tasks = await getTasks();
 
+  if (tasks.length === 0) {
+    return (
+      <article>
+        <h2>No tasks found</h2>
+        <p>There are currently no tasks available.</p>
+      </article>
+    );
+  }
+
   return (
     <div>
       {tasks.map((task) => (
         <article key={task.id}>
           <h2>{task.title}</h2>
           <p>{task.description}</p>
-          <p>Status: {task.status}</p>
-          <p>Priority: {task.priority}</p>
-          <p>Project ID: {task.project_id}</p>
+          <p>
+            <strong>Status:</strong> {task.status}
+          </p>
+          <p>
+            <strong>Priority:</strong> {task.priority}
+          </p>
+          <p>
+            <strong>Project ID:</strong> {task.project_id}
+          </p>
         </article>
       ))}
     </div>
