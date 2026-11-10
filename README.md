@@ -1,4 +1,4 @@
-﻿# TaskFlow
+# TaskFlow
 
 TaskFlow is a mini Project and Task Management Platform developed during the COMPU-VISION Full-Stack Web Development Internship.
 
@@ -23,6 +23,7 @@ The project demonstrates a complete full-stack workflow using a Node.js and Expr
 - 404 handling
 - SEO metadata
 - Environment-variable configuration
+- Production deployment
 
 ## Technology Stack
 
@@ -56,21 +57,25 @@ The project demonstrates a complete full-stack workflow using a Node.js and Expr
 - CSS Modules
 - Responsive CSS
 
-### Development Tools
+### Development and Deployment Tools
 
 - Git
 - GitHub
 - Postman
 - npm
+- Railway
+- Vercel
 
 ## Project Structure
 
-```text id="p1h0ol"
+```text
 TaskFlow/
 |
 |-- backend/
 |   |-- database/
 |   |-- postman/
+|   |-- scripts/
+|   |   `-- initDatabase.js
 |   |-- src/
 |   |   |-- config/
 |   |   |-- controllers/
@@ -88,6 +93,7 @@ TaskFlow/
 |   |   |-- pages/
 |   |   `-- services/
 |   |-- .env.example
+|   |-- vercel.json
 |   `-- package.json
 |
 |-- frontend/
@@ -105,7 +111,7 @@ TaskFlow/
 
 ### 1. Clone the Repository
 
-```bash id="qy48oe"
+```bash
 git clone https://github.com/CharbelAbboud-G/TaskFlow.git
 cd TaskFlow
 ```
@@ -114,13 +120,13 @@ cd TaskFlow
 
 Create a MySQL database named:
 
-```text id="h3bcom"
+```text
 taskflow_db
 ```
 
 Use the SQL schema provided inside:
 
-```text id="0lxd8a"
+```text
 backend/database/
 ```
 
@@ -134,14 +140,14 @@ The main database tables are:
 
 Open a terminal:
 
-```bash id="g6wljf"
+```bash
 cd backend
 npm install
 ```
 
 Create your local environment file using:
 
-```text id="aamazy"
+```text
 backend/.env.example
 ```
 
@@ -149,52 +155,58 @@ Configure the required database credentials and JWT secret.
 
 Start the backend:
 
-```bash id="zl9mab"
+```bash
 npm run dev
 ```
 
 Backend URL:
 
-```text id="1vtd83"
+```text
 http://localhost:5000
+```
+
+The production database can also be initialized using:
+
+```bash
+npm run init-db
 ```
 
 ### 4. Admin CMS Setup
 
 Open another terminal:
 
-```bash id="4wnylw"
+```bash
 cd admin
 npm install
 ```
 
 Create:
 
-```text id="urcvi4"
+```text
 admin/.env.local
 ```
 
 using:
 
-```text id="4xqfxi"
+```text
 admin/.env.example
 ```
 
 For local development:
 
-```env id="h1lu5z"
+```env
 VITE_API_BASE_URL=http://localhost:5000/api
 ```
 
 Start the Admin CMS:
 
-```bash id="hxie66"
+```bash
 npm run dev
 ```
 
 Admin URL:
 
-```text id="d3bbtd"
+```text
 http://localhost:5173
 ```
 
@@ -202,38 +214,38 @@ http://localhost:5173
 
 Open another terminal:
 
-```bash id="t4addp"
+```bash
 cd frontend
 npm install
 ```
 
 Create:
 
-```text id="cg28wu"
+```text
 frontend/.env.local
 ```
 
 using:
 
-```text id="us45cy"
+```text
 frontend/.env.example
 ```
 
 For local development:
 
-```env id="p6v8fa"
+```env
 API_BASE_URL=http://localhost:5000/api
 ```
 
 Start the public frontend:
 
-```bash id="w4k4e9"
+```bash
 npm run dev
 ```
 
 Frontend URL:
 
-```text id="vnr7y0"
+```text
 http://localhost:3000
 ```
 
@@ -241,7 +253,7 @@ http://localhost:3000
 
 ### Authentication
 
-```text id="i7erhy"
+```text
 POST /api/auth/register
 POST /api/auth/login
 GET  /api/auth/me
@@ -251,7 +263,7 @@ GET  /api/auth/me
 
 ### Projects
 
-```text id="c8454k"
+```text
 GET    /api/projects
 GET    /api/projects/:id
 POST   /api/projects
@@ -263,7 +275,7 @@ Project creation, updating, and deletion require authentication.
 
 ### Tasks
 
-```text id="uxffk5"
+```text
 GET    /api/tasks
 GET    /api/tasks/:id
 POST   /api/tasks
@@ -287,13 +299,13 @@ After successful login:
 
 Example:
 
-```text id="5p7j8x"
+```text
 Authorization: Bearer <token>
 ```
 
 ## Public Frontend Routes
 
-```text id="vgp37a"
+```text
 /                 Landing page
 /dashboard        Public dashboard
 /projects         Projects listing
@@ -301,19 +313,60 @@ Authorization: Bearer <token>
 /tasks            Tasks listing
 ```
 
+The public frontend retrieves project and task data from the TaskFlow REST API.
+
 ## Environment Variables
 
 Real `.env` and `.env.local` files are excluded from Git.
 
 Only safe example files are committed:
 
-```text id="1id1tw"
+```text
 backend/.env.example
 admin/.env.example
 frontend/.env.example
 ```
 
 Never commit database passwords, JWT secrets, or other private credentials.
+
+### Backend Production Variables
+
+The deployed backend uses environment variables such as:
+
+```text
+DB_HOST
+DB_PORT
+DB_USER
+DB_PASSWORD
+DB_NAME
+JWT_SECRET
+```
+
+Railway database variables are referenced securely from the MySQL service rather than hardcoded in the source code.
+
+### Admin Production Variable
+
+```text
+VITE_API_BASE_URL
+```
+
+Production value:
+
+```text
+https://taskflow-production-f804e933.up.railway.app/api
+```
+
+### Frontend Production Variable
+
+```text
+API_BASE_URL
+```
+
+Production value:
+
+```text
+https://taskflow-production-f804e933.up.railway.app/api
+```
 
 ## Security
 
@@ -339,13 +392,13 @@ The backend REST API was tested using Postman.
 
 The Postman collection is available inside:
 
-```text id="304c9z"
+```text
 backend/postman/
 ```
 
 The complete application was also tested end-to-end using the following flow:
 
-```text id="cw0xma"
+```text
 React Admin CMS
       |
       v
@@ -360,16 +413,130 @@ Next.js Public Frontend
 
 Creating, updating, and deleting data through the Admin CMS is reflected through the API and public frontend.
 
+## Live Deployment
+
+TaskFlow is deployed and accessible online.
+
+### Public Frontend
+
+Hosted on Vercel:
+
+```text
+https://taskflow-frontend-two-nu.vercel.app
+```
+
+Main public routes:
+
+```text
+/
+ /dashboard
+ /projects
+ /projects/[id]
+ /tasks
+```
+
+### Admin CMS
+
+Hosted on Vercel:
+
+```text
+https://taskflow-admin-alpha.vercel.app
+```
+
+Admin login route:
+
+```text
+https://taskflow-admin-alpha.vercel.app/login
+```
+
+### Backend API
+
+Hosted on Railway:
+
+```text
+https://taskflow-production-f804e933.up.railway.app
+```
+
+API health check:
+
+```text
+https://taskflow-production-f804e933.up.railway.app/api/health
+```
+
+### Production Database
+
+The production MySQL database is hosted on Railway.
+
+The Node.js backend connects to the Railway MySQL service using environment variables and Railway private networking.
+
+The database tables are initialized during deployment using:
+
+```text
+npm run init-db
+```
+
+### Deployment Architecture
+
+```text
+React Admin CMS
+Vercel
+      |
+      v
+Node.js / Express API
+Railway
+      |
+      v
+MySQL Database
+Railway
+      |
+      v
+Next.js Public Frontend
+Vercel
+```
+
+### Live End-to-End Verification
+
+The deployed application was tested end-to-end.
+
+A project named:
+
+```text
+Live Deployment Test
+```
+
+was created through the live Admin CMS.
+
+The project was successfully stored in the Railway MySQL database and appeared on the live Next.js public frontend.
+
+Its dynamic project-detail page was also successfully accessed through:
+
+```text
+/projects/1
+```
+
+This confirms that the deployed Admin CMS, REST API, database, and public frontend are fully integrated.
+
 ## Production Build
+
+### Admin CMS
+
+The React Admin production build can be tested with:
+
+```bash
+cd admin
+npm run build
+```
+
+### Public Frontend
 
 The Next.js production build can be tested with:
 
-```bash id="2x9azw"
+```bash
 cd frontend
 npm run build
 ```
 
-A successful build confirms that the public frontend can be compiled for production.
+Successful builds confirm that both frontend applications can be compiled for production.
 
 ## Internship Development Progress
 
@@ -413,7 +580,7 @@ A successful build confirms that the public frontend can be compiled for product
 - Responsive design
 - Production build testing
 
-### Week 4 - Integration and Final Delivery
+### Week 4 - Integration, Deployment and Final Delivery
 
 - End-to-end integration testing
 - Delete synchronization testing
@@ -425,6 +592,26 @@ A successful build confirms that the public frontend can be compiled for product
 - Hardcoded API URL removal
 - Security review
 - Final project documentation
+- Railway MySQL deployment
+- Railway Node.js API deployment
+- Vercel React Admin deployment
+- Vercel Next.js frontend deployment
+- Production database initialization
+- Live API health-check verification
+- Live authentication verification
+- Full live end-to-end deployment testing
+
+## Deployment Status
+
+The TaskFlow application is fully deployed and operational.
+
+```text
+Database:        Railway MySQL
+Backend API:     Railway
+Admin CMS:       Vercel
+Public Frontend: Vercel
+Repository:      GitHub
+```
 
 ## Author
 
